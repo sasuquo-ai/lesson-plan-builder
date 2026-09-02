@@ -3,524 +3,452 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>STAMP Tracker</title>
+<title>Essentials Lesson Plan Builder</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
   :root{
-    --green:#0f4d2a; --green-2:#1a5632; --gold:#b8901f; --gold-soft:#c9a961;
-    --red:#c8102e; --cream:#f4efe4; --paper:#fffdf7; --ink:#1c1a15;
-    --muted:#726b5c; --line:#e4dcc9; --line-soft:#efe8d8;
-    --shadow:0 1px 2px rgba(28,26,21,.06),0 8px 24px rgba(28,26,21,.06);
+    --green:#004730;         /* Strake Jesuit green */
+    --green-2:#0a5a3f;
+    --gold:#c7940d;          /* Strake Jesuit gold */
+    --ink:#17231d;
+    --ink-soft:#4a5a52;
+    --line:#d6ddd8;
+    --app-bg:#f4f6f4;
+    --panel:#ffffff;
+    --label-bg:#e9efeb;
+    --ess-bg:#f3f6f4;
+    --highlight:#faefc7;     /* gold highlighter for included essentials */
+    --muted:#9aa7a0;
+    --danger:#b23b3b;
+    --radius:10px;
   }
   *{box-sizing:border-box}
-  html{-webkit-text-size-adjust:100%}
-  body{margin:0;font-family:'Archivo',system-ui,sans-serif;background:var(--cream);color:var(--ink);line-height:1.45;font-size:16px}
-  .tabnum{font-variant-numeric:tabular-nums}
+  html,body{margin:0}
+  body{font-family:"Inter",system-ui,-apple-system,sans-serif;color:var(--ink);background:var(--app-bg);line-height:1.5}
 
-  header{background:var(--green);color:#fff;padding:16px 20px 0;position:sticky;top:0;z-index:20;box-shadow:0 4px 18px rgba(15,77,42,.18)}
-  .head-inner{max-width:760px;margin:0 auto}
-  .brand{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
-  .rule{width:44px;height:5px;background:var(--red);border-radius:2px;flex:0 0 auto}
-  h1{font-size:1.5rem;font-weight:900;letter-spacing:-.02em;margin:0}
-  .sub{color:#cfe0d3;font-size:.82rem;font-weight:500;margin:2px 0 0}
-  .net{margin-left:auto;display:flex;align-items:center;gap:6px;font-size:.72rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;background:rgba(255,255,255,.12);padding:5px 11px;border-radius:20px}
-  .net .d{width:8px;height:8px;border-radius:50%;background:#8fd0a3}
-  .net.local .d{background:var(--gold-soft)}
-  .net.err .d{background:#ff8a8a}
-  .tabs{display:flex;gap:4px;margin-top:14px}
-  .tab{appearance:none;border:0;cursor:pointer;background:transparent;color:#bcd3c1;font-family:inherit;font-weight:700;font-size:.92rem;padding:11px 16px 13px;border-radius:9px 9px 0 0}
-  .tab[aria-selected="true"]{background:var(--cream);color:var(--green)}
-  .tab:focus-visible{outline:3px solid var(--gold-soft);outline-offset:-3px}
+  header.app{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:16px 26px;background:var(--green);color:#fff;flex-wrap:wrap;border-bottom:3px solid var(--gold)}
+  header.app h1{font-family:"Source Serif 4",Georgia,serif;font-weight:600;font-size:22px;margin:0;letter-spacing:.2px;color:#fff}
+  .keybar{display:flex;align-items:center;gap:10px;font-size:13px;color:#d7e4dd}
+  .keybar input{font-family:inherit;font-size:13px;padding:7px 10px;border-radius:8px;border:1px solid #2c6650;background:#0c5138;color:#fff;width:220px}
+  .keybar input::placeholder{color:#9fbcae}
+  .keybar a{color:var(--gold);text-decoration:none;border-bottom:1px solid transparent}
+  .keybar a:hover{border-bottom-color:var(--gold)}
+  .keystatus{font-size:12px}
+  .keystatus.ok{color:#8fe0bd}
 
-  main{max-width:760px;margin:0 auto;padding:20px 16px 64px}
-  .view[hidden]{display:none}
-  .card{background:var(--paper);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow)}
-  .selectors{padding:16px;margin-bottom:16px}
-  label.fld{display:block;font-weight:700;font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:0 0 6px}
-  select,input[type="number"],input[type="text"]{font-family:inherit;font-size:1rem;font-weight:600;color:var(--ink);width:100%;padding:12px 13px;border:1.5px solid var(--line);border-radius:10px;background:#fff}
-  select:focus,input:focus{outline:3px solid var(--gold-soft);outline-offset:0;border-color:var(--gold)}
-  .meta-row{display:flex;gap:12px;margin-top:14px;flex-wrap:wrap}
-  .meta-row>div:first-child{flex:1 1 60%;min-width:180px}
-  .meta-row>div:last-child{flex:1 1 90px;max-width:130px}
-  .coachline{margin-top:12px;font-size:.9rem;color:var(--muted);font-weight:500;display:flex;align-items:center;gap:8px}
-  .coach-badge{background:var(--green);color:#fff;font-weight:700;font-size:.72rem;letter-spacing:.04em;padding:3px 9px;border-radius:20px;text-transform:uppercase}
+  main{display:grid;grid-template-columns:minmax(340px,2fr) 3fr;min-height:calc(100vh - 64px)}
+  @media (max-width:900px){ main{grid-template-columns:1fr} }
 
-  .mtg-label{font-weight:700;font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:2px 0 8px}
-  .mtgs{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:18px}
-  .mtg{appearance:none;font-family:inherit;cursor:pointer;background:var(--paper);border:1.5px solid var(--line);border-radius:11px;padding:12px 4px 10px;text-align:center;color:var(--ink);box-shadow:var(--shadow)}
-  .mtg .n{display:block;font-weight:800;font-size:1.35rem;line-height:1}
-  .mtg .t{display:block;font-size:.64rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-top:3px}
-  .mtg .dot{display:block;width:6px;height:6px;border-radius:50%;background:var(--line);margin:6px auto 0}
-  .mtg[aria-selected="true"]{border-color:var(--green);background:var(--green);color:#fff;box-shadow:0 6px 18px rgba(15,77,42,.22)}
-  .mtg[aria-selected="true"] .t{color:#bcd3c1}
-  .mtg[aria-selected="true"] .dot{background:var(--gold-soft)}
-  .mtg.has .dot{background:var(--gold)}
-  .mtg:focus-visible{outline:3px solid var(--gold-soft);outline-offset:2px}
+  .input{padding:24px 26px;border-right:1px solid var(--line);background:var(--panel)}
+  .input h2,.output h2{font-family:"Source Serif 4",serif;font-weight:600;font-size:15px;margin:0 0 4px;color:var(--ink)}
+  .hint{font-size:13px;color:var(--ink-soft);margin:0 0 14px}
+  textarea.source{width:100%;min-height:180px;resize:vertical;font-family:inherit;font-size:14px;padding:13px 14px;border:1px solid var(--line);border-radius:var(--radius);color:var(--ink)}
+  textarea.source:focus,.field textarea:focus,.field input:focus,.keybar input:focus{outline:2px solid var(--gold);outline-offset:1px;border-color:var(--gold)}
+  .uploader{display:flex;align-items:center;gap:10px;margin-bottom:8px;flex-wrap:wrap}
+  .uploadbtn{display:inline-flex;align-items:center;gap:8px;font-weight:600;font-size:14px;cursor:pointer;background:#eef3f0;color:var(--green);border:1px dashed #9cb4a9;border-radius:9px;padding:10px 16px}
+  .uploadbtn:hover{background:#e4ede8;border-color:var(--green)}
+  .filename{font-size:13px;color:var(--ink-soft)}
+  .filex{background:none;border:0;color:var(--muted);font-size:19px;line-height:1;cursor:pointer;padding:0 4px}
+  .filex:hover{color:var(--danger)}
+  .orline{font-size:12px;color:var(--muted);margin:0 0 6px}
+  .row{display:flex;gap:10px;align-items:center;margin-top:12px;flex-wrap:wrap}
+  button{font-family:inherit;font-weight:600;font-size:14px;cursor:pointer;border-radius:9px;border:1px solid transparent;padding:11px 18px;transition:.15s}
+  button.primary{background:var(--green);color:#fff}
+  button.primary:hover{background:var(--green-2)}
+  button.primary:disabled{background:#9aa7a0;cursor:not-allowed}
+  button.ghost{background:#fff;border-color:var(--line);color:var(--green)}
+  button.ghost:hover{border-color:var(--green)}
+  .status{font-size:13px;color:var(--ink-soft);margin-top:10px;min-height:18px}
+  .status.err{color:var(--danger)}
 
-  .stamps{display:flex;flex-direction:column;gap:10px}
-  .stamp{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:14px;background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:11px 13px;box-shadow:var(--shadow)}
-  .badge{width:52px;height:52px;border-radius:50%;flex:0 0 auto;cursor:pointer;border:2.5px solid var(--green);background:#fff;color:var(--green);font-weight:900;font-size:1.35rem;display:grid;place-items:center;transition:transform .08s ease;position:relative;font-family:inherit}
-  .badge:active{transform:scale(.9)}
-  .badge:focus-visible{outline:3px solid var(--gold-soft);outline-offset:3px}
-  .badge.pop{animation:pop .32s ease}
-  @keyframes pop{0%{transform:scale(1)}30%{transform:scale(.82)}60%{transform:scale(1.12);box-shadow:0 0 0 8px rgba(15,77,42,.10)}100%{transform:scale(1);box-shadow:0 0 0 0 rgba(15,77,42,0)}}
-  .stamp .word{min-width:0}
-  .stamp .word b{display:block;font-weight:800;font-size:1rem;line-height:1.15}
-  .stamp .word span{display:block;font-size:.74rem;color:var(--muted);font-weight:500}
-  .stepper{display:flex;align-items:center;gap:2px;flex:0 0 auto}
-  .step{appearance:none;font-family:inherit;cursor:pointer;width:38px;height:38px;border:1.5px solid var(--line);background:#fff;border-radius:9px;font-size:1.4rem;font-weight:700;color:var(--green);line-height:1;display:grid;place-items:center}
-  .step:hover{border-color:var(--gold)}
-  .step:focus-visible{outline:3px solid var(--gold-soft);outline-offset:1px}
-  .step:disabled{opacity:.35;cursor:not-allowed}
-  .count{width:46px;text-align:center;font-weight:800;font-size:1.4rem}
-  .ripple{border-color:var(--gold-soft);background:linear-gradient(180deg,#fffdf3,#fff)}
-  .ripple .badge{border-color:var(--gold);color:var(--gold);font-size:1.5rem}
-  .ripple .word b{color:#8a6d10}
-  .rnote{font-size:.72rem;color:var(--muted);margin:8px 2px 0;font-style:italic}
+  .divider{margin:22px 0 6px;border:0;border-top:1px solid var(--line)}
+  .field{margin-bottom:13px}
+  .field label{display:block;font-size:12.5px;font-weight:600;color:var(--ink-soft);margin-bottom:4px}
+  .field input,.field textarea{width:100%;font-family:inherit;font-size:13.5px;padding:9px 11px;border:1px solid var(--line);border-radius:8px;color:var(--ink)}
+  .field textarea{resize:vertical;min-height:64px}
+  .field .sub{font-size:11.5px;color:var(--muted);font-weight:500;margin-left:6px}
+  .checks{display:grid;grid-template-columns:1fr 1fr;gap:6px 16px;margin-top:4px}
+  .checks label{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:500;color:var(--ink)}
+  .checks input{width:16px;height:16px;accent-color:var(--green)}
 
-  .totals{margin-top:18px;display:grid;grid-template-columns:1fr 1fr;gap:12px}
-  .tbox{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:16px;box-shadow:var(--shadow)}
-  .tbox .k{font-size:.7rem;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);font-weight:700}
-  .tbox .v{font-weight:900;font-size:2.1rem;line-height:1;margin-top:6px;letter-spacing:-.02em}
-  .tbox.meeting{border-top:4px solid var(--gold)}
-  .tbox.plc{border-top:4px solid var(--green)}
-  .tbox .vsub{font-size:.78rem;color:var(--muted);font-weight:600;margin-top:6px}
-  .score{grid-column:1/-1;background:var(--green);color:#fff;border:0}
-  .score .k{color:#bcd3c1}.score .v{font-size:2.6rem}.score .vsub{color:#cfe0d3}
-  .saved{display:flex;align-items:center;gap:7px;justify-content:center;margin-top:16px;font-size:.8rem;color:var(--muted);font-weight:500}
-  .saved .d{width:8px;height:8px;border-radius:50%;background:#3f9a5c}
+  .output{padding:24px 26px;background:var(--app-bg)}
+  .toolbar{display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap;align-items:center}
+  .toolbar .spacer{flex:1}
+  .toast{font-size:13px;color:var(--green);font-weight:600;opacity:0;transition:.2s}
+  .toast.show{opacity:1}
 
-  .lead-head{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:6px;flex-wrap:wrap}
-  h2{font-size:1.25rem;font-weight:900;margin:0;letter-spacing:-.01em;color:var(--green)}
-  .lead-note{font-size:.8rem;color:var(--muted);margin:0 0 16px}
-  .row{display:grid;grid-template-columns:34px 1fr auto;align-items:center;gap:12px;background:var(--paper);border:1px solid var(--line);border-radius:13px;padding:12px 14px;margin-bottom:9px;box-shadow:var(--shadow)}
-  .row.lead-1{border:1.5px solid var(--gold);background:linear-gradient(180deg,#fffcf0,#fffdf7)}
-  .rank{font-weight:900;font-size:1.15rem;color:var(--muted);text-align:center}
-  .lead-1 .rank{color:var(--gold)}
-  .who b{display:block;font-weight:800;font-size:.98rem;line-height:1.2}
-  .who span{display:block;font-size:.75rem;color:var(--muted);font-weight:500}
-  .who .chips{margin-top:5px;font-size:.72rem;color:var(--muted);font-weight:600;letter-spacing:.02em}
-  .who .chips .rip{color:var(--gold)}
-  .rscore{text-align:right}
-  .rscore b{display:block;font-weight:900;font-size:1.5rem;line-height:1;letter-spacing:-.02em}
-  .rscore span{display:block;font-size:.68rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:700;margin-top:3px}
-  .empty{text-align:center;color:var(--muted);padding:30px 10px;font-weight:500}
-
-  .actions{margin-top:26px;padding-top:20px;border-top:1px solid var(--line)}
-  .actions h3{font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:0 0 12px}
-  .btn-row{display:flex;gap:9px;flex-wrap:wrap}
-  .btn{appearance:none;font-family:inherit;font-weight:700;font-size:.85rem;cursor:pointer;padding:11px 15px;border-radius:10px;border:1.5px solid var(--green);background:#fff;color:var(--green)}
-  .btn:hover{background:var(--green);color:#fff}
-  .btn.ghost{border-color:var(--line);color:var(--muted)}.btn.ghost:hover{background:var(--muted);color:#fff;border-color:var(--muted)}
-  .btn.danger{border-color:var(--red);color:var(--red)}.btn.danger:hover{background:var(--red);color:#fff}
-  .btn:focus-visible{outline:3px solid var(--gold-soft);outline-offset:2px}
-  #fileIn{display:none}
-  .toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%) translateY(20px);background:var(--green);color:#fff;font-weight:600;font-size:.9rem;padding:12px 20px;border-radius:30px;box-shadow:0 10px 30px rgba(0,0,0,.2);opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;z-index:50;max-width:90vw;text-align:center}
-  .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
-  @media (max-width:420px){.count,.mtg .n{font-size:1.2rem}.badge{width:46px;height:46px;font-size:1.2rem}.step{width:34px;height:34px}}
-  @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+  .doc{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:30px 32px;max-width:900px;margin:0 auto;box-shadow:0 1px 2px rgba(20,50,35,.06);font-family:"Source Serif 4",Georgia,serif;color:#15201b}
+  table.plan{width:100%;border-collapse:collapse}
+  table.plan td{border:1px solid #93a49b;vertical-align:top;padding:9px 11px;font-size:13.5px}
+  td.lab{background:var(--label-bg);font-family:"Inter",sans-serif;font-weight:600;color:var(--green);width:24%}
+  td.lab .sublab{font-weight:400;font-style:italic;font-size:11px;color:#61726a;margin-top:2px;line-height:1.35}
+  td.hdr{font-family:"Inter",sans-serif;font-weight:700;color:var(--green)}
+  td.content ul{margin:0;padding-left:19px}
+  td.content li{margin:2px 0}
+  td.content b{font-family:"Inter",sans-serif;font-size:12.5px}
+  td.ess{background:var(--ess-bg);font-family:"Inter",sans-serif;font-size:12px;width:26%}
+  td.ess .eh{font-style:italic;color:#3a4a42;margin-bottom:6px}
+  td.ess .grp{margin-bottom:7px}
+  td.ess .sub{font-weight:700;font-style:italic;color:var(--green);margin:8px 0 3px}
+  .ess-on{margin:1px 0;color:#15201b}
+  .ess-off{margin:1px 0;color:#a6b0ab}
+  .empty{color:#b6bfb9;font-style:italic}
+  .fine{font-size:12px;color:var(--ink-soft);max-width:900px;margin:14px auto 0;text-align:center}
 </style>
 </head>
 <body>
-
-<header>
-  <div class="head-inner">
-    <div class="brand">
-      <span class="rule"></span>
-      <div>
-        <h1>STAMP Tracker</h1>
-        <p class="sub">Enter stamps in session &middot; everyone shares one board</p>
-      </div>
-      <span class="net local" id="netBadge"><span class="d"></span><span id="netTxt">Local</span></span>
-    </div>
-    <div class="tabs" role="tablist">
-      <button class="tab" id="tab-enter" role="tab" aria-selected="true" onclick="showView('enter')">Enter stamps</button>
-      <button class="tab" id="tab-board" role="tab" aria-selected="false" onclick="showView('board')">Leaderboard</button>
-    </div>
+<header class="app">
+  <h1>Essentials Lesson Plan Builder</h1>
+  <div class="keybar">
+    <span>Google AI key</span>
+    <input id="apikey" type="password" placeholder="paste your key" autocomplete="off">
+    <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">get a free key</a>
+    <span id="keystatus" class="keystatus"></span>
   </div>
 </header>
 
 <main>
-  <section class="view" id="view-enter">
-    <div class="card selectors">
-      <label class="fld" for="plcSel">Choose your PLC</label>
-      <select id="plcSel" onchange="onPlcChange()"></select>
-      <div class="coachline" id="coachLine"></div>
-      <div class="meta-row">
-        <div>
-          <label class="fld" for="topicShow">Topic</label>
-          <input id="topicShow" type="text" readonly style="background:#f7f3e9;font-weight:600;color:var(--muted);cursor:default">
-        </div>
-        <div>
-          <label class="fld" for="memberIn">Members</label>
-          <input id="memberIn" type="number" min="1" max="99" inputmode="numeric" onchange="onMembersChange()">
-        </div>
-      </div>
+  <section class="input">
+    <h2>Start from your materials</h2>
+    <p class="hint">Upload your slides (PDF works best) or paste an outline / your objectives below — either one. The draft fills the fields, where you can edit anything before exporting.</p>
+    <div class="uploader">
+      <label class="uploadbtn">Upload slides or a file
+        <input id="file" type="file" accept=".pdf,.pptx,.png,.jpg,.jpeg,.webp,.txt,.md" hidden>
+      </label>
+      <span id="filename" class="filename"></span>
+      <button id="filex" class="filex" hidden aria-label="Remove file">&times;</button>
     </div>
-
-    <p class="mtg-label">Which meeting?</p>
-    <div class="mtgs" id="mtgRow" role="tablist"></div>
-
-    <div class="stamps" id="stampRow"></div>
-    <p class="rnote">Ripple Effects are celebrated separately &mdash; they are not counted in the STAMP score.</p>
-
-    <div class="totals">
-      <div class="tbox meeting"><div class="k">This meeting</div><div class="v tabnum" id="mtgTotal">0</div><div class="vsub">S+T+A+M+P this session</div></div>
-      <div class="tbox plc"><div class="k">PLC total</div><div class="v tabnum" id="plcTotal">0</div><div class="vsub" id="plcBreak">across all 4 meetings</div></div>
-      <div class="tbox score"><div class="k">STAMP score</div><div class="v tabnum" id="plcScore">0</div><div class="vsub" id="scoreMath">total &divide; members</div></div>
+    <div class="orline">or paste content</div>
+    <textarea id="source" class="source" placeholder="e.g. Topic: PES and Coulomb's Law review, AP Chem, 50 min. Warm-up on phosphorus configs. Notes on Zeff. QR-code PES handout. Write-Pair-Share. Exit ticket connecting PES to Coulomb's Law. HW: AP Daily 1.7."></textarea>
+    <div class="row">
+      <button id="gen" class="primary">Draft the plan</button>
+      <button id="clear" class="ghost">Clear fields</button>
     </div>
+    <div id="status" class="status"></div>
 
-    <div class="saved"><span class="d"></span><span id="savedTxt">Ready</span></div>
-
-    <div class="actions">
-      <h3>Move numbers to the tracker</h3>
-      <div class="btn-row">
-        <button class="btn" onclick="copySummary()">Copy this PLC's summary</button>
-        <button class="btn ghost" onclick="exportData()">Download backup</button>
-        <button class="btn ghost" id="loadBtn" onclick="document.getElementById('fileIn').click()">Load backup</button>
-        <input type="file" id="fileIn" accept="application/json" onchange="importData(event)">
-        <button class="btn danger" onclick="resetPlc()">Clear this PLC</button>
-      </div>
+    <hr class="divider">
+    <div class="editing">
+      <div class="field"><label>Lesson title</label><input id="f_title" type="text"></div>
+      <div class="field"><label>Objectives <span class="sub">one per line, start with a verb</span></label><textarea id="f_obj"></textarea></div>
+      <div class="field"><label>Prayer</label><input id="f_prayer" type="text"></div>
+      <div class="field"><label>Warm up</label><textarea id="f_warmup"></textarea></div>
+      <div class="field"><label>Body of the lesson <span class="sub">one chunk or check per line</span></label><textarea id="f_body" style="min-height:120px"></textarea></div>
+      <div class="field"><label>Closing</label><textarea id="f_closing"></textarea></div>
+      <div class="field"><label>Homework</label><input id="f_hw" type="text"></div>
+      <div class="field"><label>Notes &amp; materials <span class="sub">optional</span></label><textarea id="f_notes"></textarea></div>
+      <div class="field"><label>Essentials included this lesson</label><div class="checks" id="f_ess"></div></div>
     </div>
   </section>
 
-  <section class="view" id="view-board" hidden>
-    <div class="lead-head"><h2>Standings</h2><span class="lead-note" style="margin:0">Ranked by STAMP score</span></div>
-    <p class="lead-note">STAMP score = (S+T+A+M+P across all meetings) &divide; members. Highest average wins. Ripple Effects shown for celebration only.</p>
-    <div id="boardList"></div>
-    <div class="actions">
-      <h3>Whole-school data</h3>
-      <div class="btn-row">
-        <button class="btn" onclick="copyBoard()">Copy full standings</button>
-        <button class="btn ghost" onclick="exportData()">Download backup</button>
-      </div>
+  <section class="output">
+    <div class="toolbar">
+      <h2 style="margin:0">Lesson plan</h2>
+      <div class="spacer"></div>
+      <button id="copy" class="ghost">Copy for Google Docs</button>
+      <button id="download" class="primary">Download for Word</button>
+      <span id="toast" class="toast">Copied</span>
     </div>
+    <div id="doc" class="doc"></div>
+    <p class="fine">The template is drawn by this page, so the layout can't break on export. Review and edit on the left, then copy into your Doc or the lesson-plan platform. <span style="color:#c2cbc5">· build: worker-ready</span></p>
   </section>
 </main>
 
-<div class="toast" id="toast"></div>
-
 <script>
-/* ============================================================
-   SHARED SYNC  (Google Sheets backend)
-   ------------------------------------------------------------
-   1. Create a Google Sheet.
-   2. Extensions > Apps Script. Delete anything there and paste
-      the contents of Code.gs (provided alongside this file).
-   3. Deploy > New deployment > gear icon > Web app.
-        - Execute as:      Me
-        - Who has access:  Anyone
-      Click Deploy, authorize when prompted, and copy the
-      "Web app URL" (it ends in /exec).
-   4. Paste that URL between the quotes in SHEETS_URL below.
-   5. Save this file and push it to GitHub Pages.
-
-   IMPORTANT: after ANY future edit to Code.gs, redeploy a NEW
-   version (Deploy > Manage deployments > edit > New version),
-   or the changes won't take effect.
-
-   Leave SHEETS_URL blank to run in local (single-device) mode.
-   ============================================================ */
-const SHEETS_URL = "https://script.google.com/macros/s/AKfycbwFCrcfKnxrSE1bhnt9p4r3Qk4fWQfqUe07sUdP3R7TUBxLVcgmCNy8okbU4IzG8Wut6Q/exec";
-
-/* ---------- PLC roster (Carrier appended, colors removed) ---------- */
-const PLCS = [
-  {id:"PLC-01", topic:"AI Tools - Carrier 01",                              coach:"Chris",   members:8},
-  {id:"PLC-02", topic:"Nontraditional Teaching - Carrier 01",               coach:"Lesley",  members:8},
-  {id:"PLC-03", topic:"Using Summative Assessment Data - Carrier 01",       coach:"Vitaliy", members:8},
-  {id:"PLC-04", topic:"AI-Powered Lesson Design - Carrier 03",              coach:"Vitaliy", members:11},
-  {id:"PLC-05", topic:"Albert.io - Carrier 04",                            coach:"Sarah",   members:8},
-  {id:"PLC-06", topic:"Nontraditional Teaching - Carrier 04",               coach:"Sarah",   members:8},
-  {id:"PLC-07", topic:"Intensive Peer Observations - Carrier 05",           coach:"Vitaliy", members:8},
-  {id:"PLC-08", topic:"Discussion-Based Strategies (Counseling) - Carrier 05", coach:"Lesley", members:8},
-  {id:"PLC-09", topic:"Formative Assessment - Carrier 06",                  coach:"Sarah",   members:9},
-  {id:"PLC-10", topic:"AI Tools - Carrier 07",                             coach:"Chris",   members:11},
-  {id:"PLC-11", topic:"Nontraditional Teaching - Carrier 08",               coach:"Lesley",  members:8},
+/* ============ config ============ */
+const WORKER_URL = "https://essentials-proxy.sasuquo.workers.dev"; // set to the Cloudflare Worker → keyless for teachers. Blank it out to go back to bring-your-own-key.
+const GEMINI_MODELS = ["gemini-3.5-flash-lite","gemini-3.6-flash","gemini-flash-latest"]; // tried in order; lite first for best free-tier availability
+const ESSENTIALS = ["Prayer","Context Setting","Student Reflection","Objectives",
+  "Formative Assessment","Student Discourse","Effective Questioning","Lesson Chunking",
+  "ATM Expectations","Classroom Arrangement","Witness to the Good","Fluent Corrections"];
+// grouping for the "Highlight as you plan" column, mirroring the school template
+const ESS_GROUPS = [
+  {items:["Prayer","Context Setting","Student Reflection"]},
+  {items:["Objectives","Formative Assessment"]},
+  {items:["Student Discourse","Effective Questioning","Lesson Chunking","ATM Expectations","Classroom Arrangement"]},
+  {sub:"While Teaching", items:["Witness to the Good","Fluent Corrections"]}
 ];
-const KEYS = ["s","t","a","m","p"];
-const ALLK = ["s","t","a","m","p","r"];
-const LABELS = {
-  s:["Set It in Motion","Tried something from PLC work"],
-  t:["Tune In","Used student evidence"],
-  a:["Adjust","Changed practice from evidence"],
-  m:["Make It Yours","Adapted a shared idea"],
-  p:["Pass It On","Shared to help a colleague"],
+
+/* ============ key handling (stored only in this browser) ============ */
+const keyInput = document.getElementById("apikey");
+const keyStatus = document.getElementById("keystatus");
+keyInput.value = localStorage.getItem("essentials_ai_key") || "";
+function refreshKeyStatus(){ if(keyInput.value.trim()){ keyStatus.textContent="saved"; keyStatus.classList.add("ok"); } else { keyStatus.textContent=""; keyStatus.classList.remove("ok"); } }
+keyInput.addEventListener("input", ()=>{ localStorage.setItem("essentials_ai_key", keyInput.value.trim()); refreshKeyStatus(); });
+refreshKeyStatus();
+if(WORKER_URL){ const kb=document.querySelector(".keybar"); if(kb) kb.style.display="none"; }
+
+/* ============ essentials checkboxes ============ */
+const essWrap = document.getElementById("f_ess");
+ESSENTIALS.forEach(name=>{
+  const id = "ess_"+name.replace(/\s+/g,"_");
+  const l = document.createElement("label");
+  l.innerHTML = `<input type="checkbox" id="${id}" data-ess="${name}"> ${name}`;
+  essWrap.appendChild(l);
+});
+
+/* ============ field refs ============ */
+const F = {
+  title:document.getElementById("f_title"), obj:document.getElementById("f_obj"),
+  prayer:document.getElementById("f_prayer"), warmup:document.getElementById("f_warmup"),
+  body:document.getElementById("f_body"), closing:document.getElementById("f_closing"),
+  hw:document.getElementById("f_hw"), notes:document.getElementById("f_notes"),
 };
-const STORE = "jesuit-stamp-tracker-v1";
+Object.values(F).forEach(el=>el.addEventListener("input", render));
+essWrap.addEventListener("change", render);
 
-/* ---------- Runtime state ---------- */
-let db = {};
-let curPlc = PLCS[0].id;
-let curMtg = 1;
-let CLOUD = false;
-let inFlight = 0;              // outstanding writes
+/* ============ helpers ============ */
+const esc = s => (s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+const lines = s => (s||"").split("\n").map(x=>x.trim()).filter(Boolean);
+const stripSWBAT = o => o.replace(/^\s*(SWBAT|students will be able to)\s*:?\s*/i,"");
+function essState(){ const o={}; ESSENTIALS.forEach(n=>{ o[n]=document.getElementById("ess_"+n.replace(/\s+/g,"_")).checked; }); return o; }
 
-/* ---------- Data helpers ---------- */
-function blankMtg(){ return {s:0,t:0,a:0,m:0,p:0,r:0}; }
-function seed(){
-  const d={};
-  PLCS.forEach(p=>{ d[p.id]={members:p.members,meetings:{1:blankMtg(),2:blankMtg(),3:blankMtg(),4:blankMtg()}}; });
-  return d;
+function essColumnHTML(){
+  const ess = essState();
+  const mark = n => ess[n]
+    ? `<div class="ess-on"><span style="background:#faefc7;color:#004730">&#10003;</span> ${n}</div>`
+    : `<div class="ess-off">${n}</div>`;
+  let html = `<div class="eh">Highlight as you plan</div>`;
+  ESS_GROUPS.forEach(g=>{
+    if(g.sub) html += `<div class="sub">${g.sub}</div>`;
+    html += `<div class="grp">`+g.items.map(mark).join("")+`</div>`;
+  });
+  return html;
 }
-function ensureShape(d){
-  d=d||{};
-  PLCS.forEach(p=>{
-    if(!d[p.id]) d[p.id]={};
-    if(d[p.id].members==null) d[p.id].members=p.members;
-    if(!d[p.id].meetings) d[p.id].meetings={};
-    for(let m=1;m<=4;m++){
-      if(!d[p.id].meetings[m]) d[p.id].meetings[m]=blankMtg();
-      else ALLK.forEach(k=>{ d[p.id].meetings[m][k]=Number(d[p.id].meetings[m][k])||0; });
+
+/* ============ render the document (this is what exports) ============ */
+function buildDocHTML(forExport){
+  const blank = hint => forExport ? "&nbsp;" : `<span class="empty">${hint}</span>`;
+
+  const title = esc(F.title.value) || blank("Lesson title");
+
+  const objs = lines(F.obj.value).map(o=>esc(stripSWBAT(o)));
+  const objHTML = `<b>Students will be able to&hellip;</b>` + (objs.length
+    ? "<ul>"+objs.map(o=>`<li>${o}</li>`).join("")+"</ul>"
+    : "<div>"+blank("add objectives")+"</div>");
+
+  const beginItems = [];
+  if(F.prayer.value.trim()) beginItems.push("Prayer &mdash; "+esc(F.prayer.value.trim()));
+  else beginItems.push("Prayer");
+  if(F.warmup.value.trim()) beginItems.push("Warm up: "+esc(F.warmup.value.trim()));
+  const beginHTML = "<ul>"+beginItems.map(i=>`<li>${i}</li>`).join("")+"</ul>";
+
+  const bodyArr = lines(F.body.value);
+  const bodyHTML = bodyArr.length ? "<ul>"+bodyArr.map(b=>`<li>${esc(b)}</li>`).join("")+"</ul>" : blank("add lesson chunks");
+  const closeHTML = F.closing.value.trim() ? esc(F.closing.value.trim()) : blank("reflection / exit ticket");
+  const hw = F.hw.value.trim() ? esc(F.hw.value.trim()) : blank("&nbsp;");
+  const notes = F.notes.value.trim() ? esc(F.notes.value.trim()) : blank("&nbsp;");
+
+  return `
+  <table class="plan">
+    <colgroup><col style="width:24%"><col style="width:50%"><col style="width:26%"></colgroup>
+    <tr><td class="lab">Lesson Title</td><td class="content" colspan="2" style="font-family:'Source Serif 4',serif;font-weight:700;font-size:16px">${title}</td></tr>
+    <tr><td class="lab">Lesson Objectives<div class="sublab">Helpful Verbs</div></td><td class="content" colspan="2">${objHTML}</td></tr>
+    <tr><td class="lab hdr">Lesson Structure</td><td class="hdr">Classroom Activity</td><td class="ess" rowspan="6">${essColumnHTML()}</td></tr>
+    <tr><td class="lab">Beginning of class:<div class="sublab">Prayer; Context Setting; Warm up activity</div></td><td class="content">${beginHTML}</td></tr>
+    <tr><td class="lab">Body of the Lesson:<div class="sublab">Direct instruction; student-centered strategies; checks for understanding; transitions; key questions; approx. timing; Chunked lesson;</div></td><td class="content">${bodyHTML}</td></tr>
+    <tr><td class="lab">Closing:<div class="sublab">Student Reflection; Exit Ticket (Formative Assessment)</div></td><td class="content">${closeHTML}</td></tr>
+    <tr><td class="lab">Homework:</td><td class="content">${hw}</td></tr>
+    <tr><td class="lab">Notes and Materials</td><td class="content">${notes}</td></tr>
+  </table>`;
+}
+function render(){ document.getElementById("doc").innerHTML = buildDocHTML(false); }
+
+/* ============ export: Word (.doc via HTML) ============ */
+function fullDocForExport(){
+  const css = `
+    body{font-family:Georgia,serif;color:#15201b;font-size:11pt}
+    table{width:100%;border-collapse:collapse}
+    td{border:1px solid #7f938a;vertical-align:top;padding:6pt}
+    td.lab{background:#e9efeb;font-family:Arial,sans-serif;font-weight:bold;color:#004730}
+    td.lab .sublab{font-weight:normal;font-style:italic;font-size:8.5pt;color:#61726a}
+    td.hdr{font-family:Arial,sans-serif;font-weight:bold;color:#004730}
+    td.content b{font-family:Arial,sans-serif;font-size:10pt}
+    td.ess{background:#f3f6f4;font-family:Arial,sans-serif;font-size:9pt}
+    td.ess .eh{font-style:italic;color:#3a4a42}
+    td.ess .sub{font-weight:bold;font-style:italic;color:#004730}
+    ul{margin:2pt 0 0 16pt;padding:0}
+    .ess-off{color:#9aa7a0}`;
+  return `<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word"><head><meta charset="utf-8"><style>${css}</style></head><body>${buildDocHTML(true)}</body></html>`;
+}
+document.getElementById("download").addEventListener("click", ()=>{
+  const blob = new Blob(['\ufeff', fullDocForExport()], {type:"application/msword"});
+  const a = document.createElement("a");
+  const name = (F.title.value.trim() || "lesson-plan").replace(/[^\w\- ]+/g,"").slice(0,60) || "lesson-plan";
+  a.href = URL.createObjectURL(blob); a.download = name + ".doc"; a.click(); URL.revokeObjectURL(a.href);
+});
+
+/* ============ export: copy rich for Google Docs ============ */
+document.getElementById("copy").addEventListener("click", async ()=>{
+  const html = fullDocForExport();
+  const plain = document.getElementById("doc").innerText;
+  try{
+    await navigator.clipboard.write([new ClipboardItem({
+      "text/html": new Blob([html],{type:"text/html"}),
+      "text/plain": new Blob([plain],{type:"text/plain"})
+    })]);
+    toast("Copied — paste into your Doc");
+  }catch(e){
+    const r=document.createRange(); r.selectNode(document.getElementById("doc"));
+    const s=getSelection(); s.removeAllRanges(); s.addRange(r);
+    toast("Selected — press Ctrl/Cmd-C");
+  }
+});
+function toast(msg){ const t=document.getElementById("toast"); t.textContent=msg; t.classList.add("show"); setTimeout(()=>t.classList.remove("show"),2200); }
+
+/* ============ clear ============ */
+document.getElementById("clear").addEventListener("click", ()=>{
+  Object.values(F).forEach(el=>el.value="");
+  ESSENTIALS.forEach(n=>document.getElementById("ess_"+n.replace(/\s+/g,"_")).checked=false);
+  document.getElementById("source").value=""; clearFile();
+  render();
+});
+
+/* ============ file upload (PDF / PowerPoint / image → draft) ============ */
+let fileState = null;
+const fileInput = document.getElementById("file");
+const fileNameEl = document.getElementById("filename");
+const fileXEl = document.getElementById("filex");
+function clearFile(){ fileState=null; fileInput.value=""; fileNameEl.textContent=""; fileXEl.hidden=true; }
+fileXEl.addEventListener("click", ()=>{ clearFile(); setStatus(""); });
+function fileToBase64(file){ return new Promise((res,rej)=>{ const r=new FileReader(); r.onload=()=>res(r.result.split(",")[1]); r.onerror=()=>rej(new Error("Couldn't read that file.")); r.readAsDataURL(file); }); }
+function loadScript(src){ return new Promise((res,rej)=>{ const s=document.createElement("script"); s.src=src; s.onload=res; s.onerror=()=>rej(new Error("Couldn't load the PowerPoint reader — save the deck as PDF and upload that instead.")); document.head.appendChild(s); }); }
+async function extractPptxText(file){
+  if(!window.JSZip) await loadScript("https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js");
+  const zip = await JSZip.loadAsync(file);
+  const names = Object.keys(zip.files).filter(n=>/^ppt\/slides\/slide\d+\.xml$/.test(n))
+    .sort((a,b)=>(+a.match(/slide(\d+)/)[1])-(+b.match(/slide(\d+)/)[1]));
+  const decode = s=>s.replace(/&amp;/g,"&").replace(/&lt;/g,"<").replace(/&gt;/g,">").replace(/&quot;/g,'"').replace(/&#39;/g,"'");
+  const out=[];
+  for(let i=0;i<names.length;i++){
+    const xml = await zip.files[names[i]].async("string");
+    const t = [...xml.matchAll(/<a:t>([^<]*)<\/a:t>/g)].map(m=>decode(m[1])).filter(Boolean);
+    if(t.length) out.push("Slide "+(i+1)+": "+t.join(" "));
+  }
+  if(!out.length) throw new Error("No text found in that PowerPoint — save it as PDF and upload that instead.");
+  return out.join("\n");
+}
+fileInput.addEventListener("change", async ()=>{
+  const file = fileInput.files[0]; if(!file) return;
+  const name = file.name.toLowerCase();
+  fileNameEl.textContent = "Reading "+file.name+"…"; fileXEl.hidden=false; setStatus("");
+  try{
+    if(name.endsWith(".pdf")){
+      if(file.size > 18*1024*1024) throw new Error("That PDF is over 18 MB — trim it or export fewer slides.");
+      fileState = {kind:"inline", name:file.name, part:{inline_data:{mime_type:"application/pdf", data: await fileToBase64(file)}}};
+    } else if(/\.(png|jpe?g|webp)$/.test(name)){
+      const mt = name.endsWith(".png")?"image/png":name.endsWith(".webp")?"image/webp":"image/jpeg";
+      fileState = {kind:"inline", name:file.name, part:{inline_data:{mime_type:mt, data: await fileToBase64(file)}}};
+    } else if(name.endsWith(".pptx")){
+      fileNameEl.textContent = "Reading slides…";
+      fileState = {kind:"text", name:file.name, text: await extractPptxText(file)};
+    } else if(name.endsWith(".txt")||name.endsWith(".md")){
+      fileState = {kind:"text", name:file.name, text: await file.text()};
+    } else {
+      throw new Error("Unsupported file. Use PDF, PowerPoint (.pptx), an image, or paste text.");
     }
-    d[p.id].members=Number(d[p.id].members)||p.members;
-  });
-  return d;
-}
-function plcData(id){ return db[id]; }
-function plcInfo(id){ return PLCS.find(p=>p.id===id); }
-function meetingTotal(mt){ return KEYS.reduce((s,k)=>s+(mt[k]||0),0); }
-function plcTotals(id){
-  const d=plcData(id); const cat={s:0,t:0,a:0,m:0,p:0}; let rip=0;
-  for(let m=1;m<=4;m++){ const mt=d.meetings[m]; KEYS.forEach(k=>cat[k]+=mt[k]||0); rip+=mt.r||0; }
-  const total=KEYS.reduce((s,k)=>s+cat[k],0);
-  const members=d.members||1;
-  return {cat,rip,total,members,score:members>0?total/members:0};
-}
-function fmt(n){ return n.toFixed(2).replace(/\.?0+$/,"")||"0"; }
+    fileNameEl.textContent = "Loaded: "+file.name;
+  }catch(e){ clearFile(); setStatus(e.message||"Couldn't read that file.", true); }
+});
 
-/* ---------- Backend calls ---------- */
-function persistLocal(){
-  try{ localStorage.setItem(STORE,JSON.stringify(db)); setSaved("Saved on this device"); }
-  catch(e){ setSaved("Saving unavailable in preview \u2014 works once hosted"); }
-}
-function post(payload,after){
-  inFlight++;
-  setSaved("Saving\u2026");
-  fetch(SHEETS_URL,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify(payload),redirect:"follow"})
-    .then(r=>r.json())
-    .then(resp=>{
-      inFlight--;
-      if(resp&&resp.ok&&resp.state){
-        setNet("live","Live \u2014 shared"); setSaved("Synced");
-        if(inFlight===0){ db=ensureShape(resp.state); renderCurrentView(); }
-        if(after) after();
-      }else{ setNet("err","Save error"); setSaved("Could not save \u2014 retry"); }
-    })
-    .catch(()=>{ inFlight--; setNet("err","Connection issue"); setSaved("Could not sync \u2014 retry"); refresh(); });
-}
-function refresh(){
-  if(!CLOUD || inFlight>0) return;
-  fetch(SHEETS_URL,{method:"GET"})
-    .then(r=>r.json())
-    .then(resp=>{
-      if(inFlight>0) return;
-      if(resp&&resp.ok&&resp.state){ db=ensureShape(resp.state); setNet("live","Live \u2014 shared"); setSaved("Synced"); renderCurrentView(); }
-      else setNet("err","Connection issue");
-    })
-    .catch(()=>setNet("err","Connection issue"));
+/* ============ AI draft (Google Gemini) ============ */
+const genBtn = document.getElementById("gen");
+const statusEl = document.getElementById("status");
+function setStatus(msg, err){ statusEl.textContent=msg; statusEl.classList.toggle("err", !!err); }
+
+const SCHEMA = {
+  type:"object",
+  properties:{
+    title:{type:"string"}, objectives:{type:"array", items:{type:"string"}},
+    prayer:{type:"string"}, warmup:{type:"string"}, body:{type:"array", items:{type:"string"}},
+    closing:{type:"string"}, homework:{type:"string"}, notes:{type:"string"},
+    essentials:{type:"object", properties:Object.fromEntries(ESSENTIALS.map(n=>[n,{type:"boolean"}]))}
+  },
+  required:["title","objectives","prayer","warmup","body","closing","homework","essentials"]
+};
+
+function buildPrompt(content){
+  return `You help a Catholic Jesuit high-school teacher fill in a lesson-plan template from their OWN materials.
+Extract ONLY what is present in the teacher's materials (the attached file and/or the text below). Do NOT invent, assume, or add anything the teacher did not provide — no made-up prayers, warm-ups, activities, objectives, homework, closings, or notes. Leaving a field blank is correct and expected; the teacher will fill those in themselves after downloading.
+Rules:
+- Return an empty string "" (or an empty array) for anything not clearly stated or directly described in the content. Do not guess or pad.
+- Keep everything terse — short phrases and fragments, not paragraphs.
+- objectives: only objectives the content states or clearly describes; start each with a measurable verb; do NOT prefix with "SWBAT" or "Students will be able to". Empty array if none are given.
+- prayer: ONLY if the content specifies a prayer. Otherwise "". Never write your own prayer.
+- warmup: only if described; else "".
+- body: only the chunks/checks the content describes; format each as "Lesson Chunk N: ..." or "Check for Understanding: ..."; empty array if none.
+- closing: only if described; else "". Never invent a reflection or exit ticket.
+- homework: only if stated; else "". Do not write "None" unless the teacher explicitly says there is none.
+- notes: only setup/materials notes that are stated; else "".
+- essentials: set to true ONLY where the content clearly shows that practice happening; otherwise false. Do not guess to fill them.
+- title: from the stated topic only; "" if no topic is given.
+
+LESSON CONTENT:
+${content}`;
 }
 
-/* ---------- Build UI ---------- */
-function buildSelectors(){
-  const sel=document.getElementById("plcSel");
-  sel.innerHTML=PLCS.map(p=>`<option value="${p.id}">${p.id} \u2014 ${p.topic}</option>`).join("");
-  sel.value=curPlc;
-}
-function syncPlcMeta(){
-  const info=plcInfo(curPlc), d=plcData(curPlc);
-  document.getElementById("topicShow").value=info.topic;
-  const memEl=document.getElementById("memberIn");
-  if(document.activeElement!==memEl) memEl.value=d.members;
-  document.getElementById("coachLine").innerHTML=`<span class="coach-badge">Coach</span> ${info.coach}`;
-}
-function buildMeetings(){
-  const row=document.getElementById("mtgRow"), d=plcData(curPlc);
-  row.innerHTML="";
-  for(let m=1;m<=4;m++){
-    const mt=d.meetings[m];
-    const has=meetingTotal(mt)>0||mt.r>0;
-    const b=document.createElement("button");
-    b.className="mtg"+(has?" has":"");
-    b.setAttribute("role","tab");
-    b.setAttribute("aria-selected",m===curMtg?"true":"false");
-    b.innerHTML=`<span class="n">${m}</span><span class="t">Meeting</span><span class="dot"></span>`;
-    b.onclick=()=>{curMtg=m;buildMeetings();buildStamps();refreshTotals();};
-    row.appendChild(b);
+async function callGemini(key, parts){
+  const sleep = ms => new Promise(r=>setTimeout(r,ms));
+  let lastErr;
+  if(WORKER_URL){
+    for(let attempt=0; attempt<4; attempt++){
+      let res;
+      try{
+        res = await fetch(WORKER_URL,{ method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify({parts, schema:SCHEMA}) });
+      }catch(e){ lastErr=e; await sleep(800*(attempt+1)); continue; }
+      if(res.status===503 || res.status===429){ lastErr=new Error(res.status); setStatus("Server busy, retrying…"); await sleep(1000*Math.pow(2,attempt)); continue; }
+      if(!res.ok){ const t=await res.text(); throw new Error("Server error "+res.status+": "+t.slice(0,160)); }
+      return await res.json();
+    }
+    throw new Error("The lesson-plan service is busy right now"+(lastErr?" (error "+lastErr.message+")":"")+". Wait a minute and try again.");
   }
-}
-function buildStamps(){
-  const row=document.getElementById("stampRow"), mt=plcData(curPlc).meetings[curMtg];
-  row.innerHTML="";
-  KEYS.forEach(k=>{
-    const el=document.createElement("div"); el.className="stamp";
-    el.innerHTML=`
-      <button class="badge" aria-label="Add ${LABELS[k][0]} stamp" onclick="bump('${k}',1,this)">${k.toUpperCase()}</button>
-      <div class="word"><b>${LABELS[k][0]}</b><span>${LABELS[k][1]}</span></div>
-      <div class="stepper">
-        <button class="step" aria-label="Remove one ${LABELS[k][0]}" onclick="bump('${k}',-1)" ${mt[k]<=0?"disabled":""}>&minus;</button>
-        <div class="count tabnum" id="c-${k}">${mt[k]}</div>
-        <button class="step" aria-label="Add one ${LABELS[k][0]}" onclick="bump('${k}',1)">+</button>
-      </div>`;
-    row.appendChild(el);
-  });
-  const r=document.createElement("div"); r.className="stamp ripple";
-  r.innerHTML=`
-    <button class="badge" aria-label="Add Ripple Effect" onclick="bump('r',1,this)">&#9733;</button>
-    <div class="word"><b>Ripple Effect</b><span>Meaningful difference for students</span></div>
-    <div class="stepper">
-      <button class="step" aria-label="Remove one Ripple Effect" onclick="bump('r',-1)" ${mt.r<=0?"disabled":""}>&minus;</button>
-      <div class="count tabnum" id="c-r">${mt.r}</div>
-      <button class="step" aria-label="Add one Ripple Effect" onclick="bump('r',1)">+</button>
-    </div>`;
-  row.appendChild(r);
-}
-function refreshTotals(){
-  const mt=plcData(curPlc).meetings[curMtg];
-  document.getElementById("mtgTotal").textContent=meetingTotal(mt);
-  const t=plcTotals(curPlc);
-  document.getElementById("plcTotal").textContent=t.total;
-  document.getElementById("plcBreak").textContent=`S ${t.cat.s} \u00b7 T ${t.cat.t} \u00b7 A ${t.cat.a} \u00b7 M ${t.cat.m} \u00b7 P ${t.cat.p}`;
-  document.getElementById("plcScore").textContent=fmt(t.score);
-  document.getElementById("scoreMath").textContent=`${t.total} \u00f7 ${t.members} members${t.rip?`  \u00b7  \u2605 ${t.rip} ripple`:""}`;
-}
-function renderEnter(){ syncPlcMeta(); buildMeetings(); buildStamps(); refreshTotals(); }
-function renderCurrentView(){ document.getElementById("view-board").hidden?renderEnter():buildBoard(); }
-
-/* ---------- Interactions ---------- */
-function bump(k,delta,badgeEl){
-  const mt=plcData(curPlc).meetings[curMtg];
-  const cur=mt[k]||0, next=Math.max(0,cur+delta), real=next-cur;
-  if(real===0) return;
-  mt[k]=next;                                   // optimistic
-  const c=document.getElementById("c-"+k); if(c) c.textContent=next;
-  if(delta>0&&badgeEl){ badgeEl.classList.remove("pop"); void badgeEl.offsetWidth; badgeEl.classList.add("pop"); }
-  buildStamps(); buildMeetings(); refreshTotals();
-  if(CLOUD) post({action:"bump",plc:curPlc,meeting:curMtg,key:k,delta:real});
-  else persistLocal();
-}
-function onPlcChange(){ curPlc=document.getElementById("plcSel").value; curMtg=1; renderEnter(); }
-function onMembersChange(){
-  const v=parseInt(document.getElementById("memberIn").value,10);
-  const val=(isNaN(v)||v<1)?1:v;
-  plcData(curPlc).members=val; refreshTotals();
-  if(CLOUD) post({action:"members",plc:curPlc,value:val}); else persistLocal();
-}
-
-/* ---------- Views ---------- */
-function showView(v){
-  const enter=v==="enter";
-  document.getElementById("view-enter").hidden=!enter;
-  document.getElementById("view-board").hidden=enter;
-  document.getElementById("tab-enter").setAttribute("aria-selected",enter);
-  document.getElementById("tab-board").setAttribute("aria-selected",!enter);
-  enter?renderEnter():buildBoard();
-  if(CLOUD) refresh();
-}
-function buildBoard(){
-  const list=document.getElementById("boardList");
-  const rows=PLCS.map(p=>({info:p,...plcTotals(p.id)}));
-  rows.sort((a,b)=>b.score-a.score||b.total-a.total||a.info.id.localeCompare(b.info.id));
-  if(!rows.some(r=>r.total>0||r.rip>0)){
-    list.innerHTML=`<div class="empty">No stamps entered yet.<br>Standings will fill in as coaches log their meetings.</div>`; return;
+  for(const model of GEMINI_MODELS){
+    for(let attempt=0; attempt<3; attempt++){
+      let res;
+      try{
+        res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${encodeURIComponent(key)}`,{
+          method:"POST", headers:{"Content-Type":"application/json"},
+          body: JSON.stringify({ contents:[{parts}], generationConfig:{ responseMimeType:"application/json", responseSchema:SCHEMA } })
+        });
+      }catch(e){ lastErr=e; await sleep(700*(attempt+1)); continue; }
+      if(res.status===503 || res.status===429){ lastErr=new Error(res.status); setStatus("Model busy, retrying…"); await sleep(900*Math.pow(2,attempt)); continue; }
+      if(res.status===400){ throw new Error("Request rejected — the key looks wrong or invalid."); }
+      if(!res.ok){ const t=await res.text(); throw new Error("API error "+res.status+": "+t.slice(0,140)); }
+      return await res.json();
+    }
+    setStatus("Trying a lighter model…");
   }
-  list.innerHTML=rows.map((r,i)=>{
-    const rank=i+1;
-    return `<div class="row ${rank===1&&r.total>0?"lead-1":""}">
-      <div class="rank">${r.total>0?rank:"\u2013"}</div>
-      <div class="who">
-        <b>${r.info.topic}</b>
-        <span>${r.info.id} \u00b7 ${r.info.coach} \u00b7 ${r.members} members</span>
-        <div class="chips">S ${r.cat.s} \u00b7 T ${r.cat.t} \u00b7 A ${r.cat.a} \u00b7 M ${r.cat.m} \u00b7 P ${r.cat.p}${r.rip?` <span class="rip">\u00b7 \u2605 ${r.rip}</span>`:""}</div>
-      </div>
-      <div class="rscore"><b class="tabnum">${fmt(r.score)}</b><span>score</span></div>
-    </div>`;
-  }).join("");
+  throw new Error("The free models are all busy right now"+(lastErr?" (error "+lastErr.message+")":"")+". Wait a minute and try again.");
 }
 
-/* ---------- Export / copy / reset ---------- */
-function copySummary(){
-  const info=plcInfo(curPlc), t=plcTotals(curPlc), d=plcData(curPlc);
-  let s=`${info.id} \u2014 ${info.topic}\nCoach: ${info.coach}  |  Members: ${t.members}\n\nBy meeting:\n`;
-  for(let m=1;m<=4;m++){ const mt=d.meetings[m];
-    s+=`  Mtg ${m}:  S${mt.s} T${mt.t} A${mt.a} M${mt.m} P${mt.p}${mt.r?`  \u2605${mt.r}`:""}  (=${meetingTotal(mt)})\n`; }
-  s+=`\nTOTALS  S:${t.cat.s}  T:${t.cat.t}  A:${t.cat.a}  M:${t.cat.m}  P:${t.cat.p}\nSTAMP total: ${t.total}\nSTAMP score (\u00f7${t.members}): ${t.score.toFixed(2)}\nRipple Effects: ${t.rip}`;
-  copyText(s,"Summary copied");
-}
-function copyBoard(){
-  const rows=PLCS.map(p=>({info:p,...plcTotals(p.id)}));
-  rows.sort((a,b)=>b.score-a.score||b.total-a.total);
-  let s=`PLC STAMP STANDINGS\n`;
-  rows.forEach((r,i)=>{ s+=`${(i+1).toString().padStart(2)}. ${r.info.id} ${r.info.topic}\n    score ${r.score.toFixed(2)}  (total ${r.total} \u00f7 ${r.members})  S${r.cat.s} T${r.cat.t} A${r.cat.a} M${r.cat.m} P${r.cat.p}  \u2605${r.rip}\n`; });
-  copyText(s,"Standings copied");
-}
-function copyText(text,msg){
-  if(navigator.clipboard){ navigator.clipboard.writeText(text).then(()=>toast(msg)).catch(()=>fallbackCopy(text,msg)); }
-  else fallbackCopy(text,msg);
-}
-function fallbackCopy(text,msg){
-  const ta=document.createElement("textarea"); ta.value=text; document.body.appendChild(ta); ta.select();
-  try{document.execCommand("copy");toast(msg);}catch(e){toast("Copy not supported \u2014 use Download");}
-  document.body.removeChild(ta);
-}
-function exportData(){
-  const blob=new Blob([JSON.stringify(db,null,2)],{type:"application/json"});
-  const url=URL.createObjectURL(blob), a=document.createElement("a");
-  a.href=url; a.download=`stamp-tracker-${new Date().toISOString().slice(0,10)}.json`; a.click();
-  URL.revokeObjectURL(url); toast("Backup downloaded");
-}
-function importData(ev){
-  const f=ev.target.files[0]; if(!f) return;
-  const reader=new FileReader();
-  reader.onload=()=>{
-    try{
-      const inc=ensureShape(JSON.parse(reader.result));
-      db=inc; persistLocal(); renderCurrentView(); toast("Backup loaded");
-    }catch(e){ toast("That file could not be read"); }
-    ev.target.value="";
-  };
-  reader.readAsText(f);
-}
-function resetPlc(){
-  const info=plcInfo(curPlc);
-  if(!confirm(`Clear all stamps for ${info.id} (${info.topic})?\nThis cannot be undone.`)) return;
-  if(CLOUD){ post({action:"reset",plc:curPlc},()=>toast("PLC cleared")); }
-  else{
-    const d=plcData(curPlc); for(let m=1;m<=4;m++) d.meetings[m]=blankMtg();
-    renderEnter(); persistLocal(); toast("PLC cleared");
-  }
-}
+genBtn.addEventListener("click", async ()=>{
+  const key = keyInput.value.trim();
+  const pasted = document.getElementById("source").value.trim();
+  if(!WORKER_URL && !key){ setStatus("Paste your Google AI key up top first (there's a free-key link beside it).", true); return; }
+  if(!pasted && !fileState){ setStatus("Upload your slides or paste some lesson content to draft from.", true); return; }
+  genBtn.disabled=true; setStatus("Drafting…");
+  try{
+    let contentText = pasted;
+    if(fileState && fileState.kind==="text") contentText += (contentText?"\n\n":"") + fileState.text;
+    const parts = [{text: buildPrompt(contentText || "(The lesson materials are in the attached file.)")}];
+    if(fileState && fileState.kind==="inline") parts.push(fileState.part);
+    const data = await callGemini(key, parts);
+    const raw = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+    if(!raw) throw new Error("No draft came back — try again or add more detail.");
+    const d = JSON.parse(raw);
+    F.title.value=d.title||""; F.obj.value=(d.objectives||[]).join("\n");
+    F.prayer.value=d.prayer||""; F.warmup.value=d.warmup||"";
+    F.body.value=(d.body||[]).join("\n"); F.closing.value=d.closing||"";
+    F.hw.value=d.homework||""; F.notes.value=d.notes||"";
+    ESSENTIALS.forEach(n=>{ document.getElementById("ess_"+n.replace(/\s+/g,"_")).checked = !!(d.essentials&&d.essentials[n]); });
+    render();
+    setStatus("Draft ready — edit anything on the left, then export.");
+  }catch(e){ setStatus(e.message||"Something went wrong.", true); }
+  finally{ genBtn.disabled=false; }
+});
 
-/* ---------- Status chips ---------- */
-function setNet(mode,txt){
-  const b=document.getElementById("netBadge");
-  b.className="net"+(mode==="live"?"":" "+mode);
-  document.getElementById("netTxt").textContent=txt;
-}
-function setSaved(txt){ document.getElementById("savedTxt").textContent=txt; }
-function toast(msg){
-  const el=document.getElementById("toast"); el.textContent=msg; el.classList.add("show");
-  clearTimeout(el._t); el._t=setTimeout(()=>el.classList.remove("show"),1900);
-}
-
-/* ---------- Boot ---------- */
-function startLocal(reason){
-  CLOUD=false; setNet("local","Local"); setSaved(reason||"Saved on this device");
-  try{ const raw=localStorage.getItem(STORE); db=raw?ensureShape(JSON.parse(raw)):seed(); }
-  catch(e){ db=seed(); }
-  buildSelectors(); renderEnter();
-}
-function startCloud(){
-  CLOUD=true; setNet("live","Connecting\u2026"); setSaved("Connecting\u2026");
-  db=seed(); buildSelectors(); renderEnter();
-  document.getElementById("loadBtn").style.display="none"; // avoid clobbering shared data
-  refresh();
-  setInterval(()=>{ if(CLOUD && !document.hidden) refresh(); },7000);
-  document.addEventListener("visibilitychange",()=>{ if(!document.hidden) refresh(); });
-}
-if(SHEETS_URL && SHEETS_URL.indexOf("/exec")!==-1){ startCloud(); }
-else { startLocal(); }
+render();
 </script>
 </body>
 </html>
