@@ -151,7 +151,7 @@
       <span id="toast" class="toast">Copied</span>
     </div>
     <div id="doc" class="doc"></div>
-    <p class="fine">The template is drawn by this page, so the layout can't break on export. Review and edit on the left, then copy into your Doc or the lesson-plan platform. <span style="color:#c2cbc5">· build: worker-ready</span></p>
+    <p class="fine">The template is drawn by this page, so the layout can't break on export. Review and edit on the left, then copy into your Doc or the lesson-plan platform. <span style="color:#c2cbc5">· build: essentials-v2</span></p>
   </section>
 </main>
 
@@ -160,14 +160,14 @@
 const WORKER_URL = "https://essentials-proxy.sasuquo.workers.dev"; // set to the Cloudflare Worker → keyless for teachers. Blank it out to go back to bring-your-own-key.
 const GEMINI_MODELS = ["gemini-3.5-flash-lite","gemini-3.6-flash","gemini-flash-latest"]; // tried in order; lite first for best free-tier availability
 const ESSENTIALS = ["Prayer","Context Setting","Student Reflection","Objectives",
-  "Formative Assessment","Student Discourse","Effective Questioning","Lesson Chunking",
-  "ATM Expectations","Classroom Arrangement","Witness to the Good","Fluent Corrections"];
+  "Formative Assessment","Student-to-Student Discourse","Effective Questioning","Lesson Chunking",
+  "ATM Expectations","Classroom Arrangement","Academic Praise","Behavior-Specific Praise","Fluent Corrections"];
 // grouping for the "Highlight as you plan" column, mirroring the school template
 const ESS_GROUPS = [
   {items:["Prayer","Context Setting","Student Reflection"]},
   {items:["Objectives","Formative Assessment"]},
-  {items:["Student Discourse","Effective Questioning","Lesson Chunking","ATM Expectations","Classroom Arrangement"]},
-  {sub:"While Teaching", items:["Witness to the Good","Fluent Corrections"]}
+  {items:["Student-to-Student Discourse","Effective Questioning","Lesson Chunking","ATM Expectations","Classroom Arrangement"]},
+  {sub:"While Teaching", items:["Academic Praise","Behavior-Specific Praise","Fluent Corrections"]}
 ];
 
 /* ============ key handling (stored only in this browser) ============ */
